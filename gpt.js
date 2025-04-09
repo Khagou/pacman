@@ -9,34 +9,21 @@ let pacman = {
   direction: null,
   nextDirection: null,
   mouthOpen: true,
-  started: false,
 };
 let score = 0;
 let moveInterval = 200; // Intervalle de déplacement en millisecondes
 let lastMoveTime = 0;
 let ghosts = [
-  { x: 1, y: 12, target: null, color: "red" },
-  { x: 26, y: 12, target: null, color: "pink" },
-  { x: 26, y: 1, target: null, color: "cyan" },
-  { x: 12, y: 11, target: null, color: "orange" },
+  { x: 1, y: 2, target: null, color: "red" },
+  { x: 8, y: 3, target: null, color: "pink" },
+  { x: 15, y: 7, target: null, color: "cyan" },
+  { x: 4, y: 9, target: null, color: "orange" },
 ];
 let ghostMoveInterval = 450; // Intervalle de déplacement des fantômes en millisecondes
 let lastGhostMoveTime = 0;
 let attractionDistance = 5; // Distance à partir de laquelle les fantômes sont attirés
 let animationInterval = 200; // Intervalle de changement d'animation en millisecondes
 let lastAnimationTime = 0;
-
-// chargement des sons
-const eat = new Audio("./sounds/eat.mp3");
-const eatFruit = new Audio("./sounds/eat-fruit.mp3");
-const eatGhost = new Audio("./sounds/eat-ghost.mp3");
-const ghostBackBase = new Audio("./sounds/ghost-back-base.mp3");
-const ghostScared = new Audio("./sounds/ghost-scared.mp3");
-const ghostSiren = new Audio("./sounds/ghost-siren.mp3");
-const ghostSiren2 = new Audio("./sounds/ghost-siren2.mp3");
-const highScore = new Audio("./sounds/high-score.mp3");
-const pacmanDying = new Audio("./sounds/pacman-dying.mp3");
-const startGame = new Audio("./sounds/start.mp3");
 
 const initialMap = [
   [
@@ -100,11 +87,6 @@ const initialMap = [
 let map = JSON.parse(JSON.stringify(initialMap));
 
 document.addEventListener("keydown", function (event) {
-  if (!pacman.started) {
-    pacman.started = true;
-    startGame.play(); // Jouer le son de départ du jeu
-    ghostSiren.play(); // Jouer le son de la sirène du fantome
-  }
   switch (event.key) {
     case "ArrowUp":
       pacman.direction = "up";
@@ -184,9 +166,7 @@ function movePacman() {
         }
         break;
     }
-    if (moved) {
-      lastMoveTime = now;
-    }
+    if (moved) lastMoveTime = now;
     console.log(`Pac-Man position: (${pacman.x}, ${pacman.y})`);
   }
 }
@@ -254,14 +234,8 @@ function chooseRandomTarget() {
 
 function moveGhosts() {
   const now = Date.now();
-  if (!pacman.started) return; // Les fantômes ne bougent que si Pac-Man a commencé à bouger
-
   if (now - lastGhostMoveTime > ghostMoveInterval) {
     ghosts.forEach((ghost) => {
-      if (ghost.initial) {
-        ghost.initial = false;
-        return;
-      }
       let distance = getDistance(ghost.x, ghost.y, pacman.x, pacman.y);
       if (distance < attractionDistance) {
         // Move towards Pac-Man
@@ -365,29 +339,30 @@ function checkCollision() {
   if (map[pacman.y][pacman.x] === 0) {
     map[pacman.y][pacman.x] = 2;
     score++;
-    eat.play(); // Jouer le son de manger
     console.log("Score:", score);
-  } else {
-    eat.pause(); // Arrêter le son de manger
   }
   ghosts.forEach((ghost) => {
     if (pacman.x === ghost.x && pacman.y === ghost.y) {
       console.log("Collision! Game Over");
       // Restart the game or take appropriate action
-      eat.pause(); // Arrêter le son de manger le fantôme
-      pacmanDying.play(); // Jouer le son de mort de Pac Man
       resetGame();
     }
   });
 }
 
 function resetGame() {
-  pacman = { x: 1, y: 1, direction: null, nextDirection: null };
+  pacman = {
+    x: 1,
+    y: 1,
+    direction: null,
+    nextDirection: null,
+    mouthOpen: true,
+  };
   ghosts = [
-    { x: 1, y: 12, target: null, color: "red" },
-    { x: 26, y: 12, target: null, color: "pink" },
-    { x: 26, y: 1, target: null, color: "cyan" },
-    { x: 12, y: 11, target: null, color: "orange" },
+    { x: 1, y: 2, target: null, color: "red" },
+    { x: 8, y: 3, target: null, color: "pink" },
+    { x: 15, y: 7, target: null, color: "cyan" },
+    { x: 4, y: 9, target: null, color: "orange" },
   ];
   score = 0;
   map = JSON.parse(JSON.stringify(initialMap));
@@ -395,7 +370,6 @@ function resetGame() {
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   drawMap();
   movePacman();
   moveGhosts();
