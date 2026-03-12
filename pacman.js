@@ -387,7 +387,7 @@ function resetGame() {
     { x: 1, y: 12, target: null, color: "red" },
     { x: 26, y: 12, target: null, color: "pink" },
     { x: 26, y: 1, target: null, color: "cyan" },
-    { x: 12, y: 11, target: null, color: "orange" },
+    { x: 12, y: 11, target: null, color: "green" },
   ];
   score = 0;
   map = JSON.parse(JSON.stringify(initialMap));
